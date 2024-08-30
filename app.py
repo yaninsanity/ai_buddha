@@ -64,9 +64,9 @@ def explain_scripture():
             ]
 
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=messages,
-            max_tokens=150,
+            max_tokens=500,
             temperature=0.7  # 温度值越高，生成的内容越具创造性
         )
 

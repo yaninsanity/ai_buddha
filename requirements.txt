@@ -1,4 +1,4 @@
-flask==1.1.2
+flask==3.0.3
 openai==0.28
 gradio==3.42.0
 python-dotenv

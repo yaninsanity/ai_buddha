@@ -19,35 +19,56 @@ python3.11 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
+pip install --upgrade pip
 pip install -r requirements.txt
 
 # Create a log directory if it doesn't exist
 mkdir -p log
 
+# Function to kill background processes on exit
+cleanup() {
+    echo "Stopping Flask and Gradio..."
+    kill $FLASK_PID
+    kill $GRADIO_PID
+    exit 0
+}
+
+# Trap SIGINT (Ctrl+C) and SIGTERM to stop the background processes
+trap cleanup SIGINT SIGTERM
+
 # Start Flask application
 echo "Starting Flask application..."
-nohup python app.py > log/flask_output.log 2> log/flask_error.log &
+python app.py > log/flask_output.log 2> log/flask_error.log &
+FLASK_PID=$!
 
 # Start Gradio application (Assuming you have a Gradio interface in gradio_interface.py)
 echo "Starting Gradio application..."
-nohup python gradio_interface.py > log/gradio_output.log 2> log/gradio_error.log &
-
-echo "Both Flask and Gradio applications have been started."
+python gradio_interface.py > log/gradio_output.log 2> log/gradio_error.log &
+GRADIO_PID=$!
 
 # Wait a few seconds to give the processes time to start
 sleep 5
 
-# Check if Flask and Gradio are running
-if pgrep -f "python app.py" > /dev/null
+# Check if Flask is running
+if ps -p $FLASK_PID > /dev/null
 then
     echo "Flask is running."
 else
     echo "Flask failed to start. Check log/flask_error.log for details."
+    kill $GRADIO_PID
+    exit 1
 fi
 
-# Check Gradio status by looking for specific error patterns in the log
-if ! tail -n 10 log/gradio_error.log | grep -q "Traceback\|ModuleNotFoundError"; then
+# Check if Gradio is running
+if ps -p $GRADIO_PID > /dev/null
+then
     echo "Gradio is running."
 else
     echo "Gradio failed to start properly. Check log/gradio_error.log for details."
+    kill $FLASK_PID
+    exit 1
 fi
+
+# Keep the script running to allow Flask and Gradio to run
+wait $FLASK_PID
+wait $GRADIO_PID
