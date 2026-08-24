@@ -1,3 +1,5 @@
+
+
 ## Buddhist Scripture Explanation API
 This is a Flask-based API that leverages OpenAI's GPT-4 to provide explanations for passages from various Buddhist scriptures. The API supports both Chinese and English languages.
 
@@ -27,7 +29,7 @@ run.sh
 ## Request Body
 ``` json
 {
-  "scripture": "Heart Sutra",
+  "scripture": "心经",
   "text": "Here is the passage you want to explain.",
   "language": "zh"  # or "en" for English
 }
@@ -47,4 +49,3 @@ If you have any ideas or suggestions to improve this API, feel free to submit a 
 
 ## License
 This project is licensed under the MIT License.
-
